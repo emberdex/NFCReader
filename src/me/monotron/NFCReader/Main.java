@@ -54,7 +54,7 @@ public class Main {
             if(!isMifareCard) continue;
 
             // Authentamacate
-            if(MifareUtils.isNFCTag(attachedCard)) {
+            if(!MifareUtils.isNFCTag(attachedCard)) {
                 boolean success = MifareUtils.authenticate(attachedCard);
                 if(!success) {
                     System.out.println("Failed to authenticate with the card.");

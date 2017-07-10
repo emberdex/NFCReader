@@ -1,6 +1,7 @@
 package me.monotron.NFCReader;
 
 import com.sun.javaws.exceptions.InvalidArgumentException;
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
 
 import javax.smartcardio.*;
 
@@ -216,16 +217,21 @@ public class MifareUtils {
 
     public static boolean isValidMifareCard(byte[] atr) {
         boolean isMifareCard = true;
-        if (atr.length < 16) {
-            isMifareCard = false;
-        }
 
-        if(atr[13] != 0x0) {
-            isMifareCard = false;
-        }
+        try {
+            if (atr.length < 16) {
+                isMifareCard = false;
+            }
 
-        if(!MifareTypes.types.contains(atr[14])) {
-            isMifareCard = false;
+            if(atr[13] != 0x0) {
+                isMifareCard = false;
+            }
+
+            if(!MifareTypes.types.contains(atr[14])) {
+                isMifareCard = false;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
         }
 
         return isMifareCard;
