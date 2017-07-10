@@ -163,8 +163,7 @@ public class MifareUtils {
             ce.printStackTrace();
         }
 
-        if(response == null) return false;
-        else return isSuccess(response.getBytes());
+        return response != null && isSuccess(response.getBytes());
     }
 
     public static CardTerminal detectAtrReader() {
@@ -241,19 +240,28 @@ public class MifareUtils {
         ResponseAPDU response = null;
         try {
             response = card.getBasicChannel().transmit(new CommandAPDU(apduGetKey));
-            if(!isSuccess(response.getBytes())) return false;
+            if (!isSuccess(response.getBytes())) return false;
             response = card.getBasicChannel().transmit(new CommandAPDU(apduAuthenticate));
         } catch (CardException ce) {
             System.out.println("Failed to authenticate with the card.");
             ce.printStackTrace();
         }
-        if(response == null) { return false; }
-        else {
-            return isSuccess(response.getBytes());
-        }
+        return response != null && isSuccess(response.getBytes());
     }
 
     public static boolean isSuccess(byte[] response) {
         return (response[response.length - 1] == 0x00 && response[response.length - 2] == (byte) 0x90);
+    }
+
+    public static boolean isNFCTag(Card card) { return (MifareUtils.getMifareType(card.getATR().getBytes()) == (byte) 0x03); }
+
+    public static byte[] chopStatusBytes(byte[] response) {
+        byte[] retval = new byte[response.length - 2];
+
+        for (int i = 0; i < retval.length; i++) {
+            retval[i] = response[i];
+        }
+
+        return retval;
     }
 }
