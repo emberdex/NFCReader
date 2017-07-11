@@ -211,10 +211,10 @@ public class MifareUtils {
     }
 
     /**
-     * Method to detect a valid ACS ATR122 card reader.
-     * @return The first ATR122 detected on the system, or null if none is detected.
+     * Method to detect a valid ACS ACR122 card reader.
+     * @return The first ACR122 detected on the system, or null if none is detected.
      */
-    public static CardTerminal detectAtrReader() {
+    public static CardTerminal detectAcrReader() {
         CardTerminal correctTerminal = null;
 
         // Get a list of terminals.

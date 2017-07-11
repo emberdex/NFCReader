@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Detecting card reader...");
 
-        CardTerminal terminal = MifareUtils.detectAtrReader();
+        CardTerminal terminal = MifareUtils.detectAcrReader();
         if(terminal == null) {
             System.out.println("Failed to detect a proper ATR122 reader.");
             exit(1);
