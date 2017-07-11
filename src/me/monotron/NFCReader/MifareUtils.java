@@ -278,6 +278,19 @@ public class MifareUtils {
     }
 
     /**
+     * Method to wait for a card to be removed from a given terminal.
+     * @param terminal The card to remove.
+     */
+    public static void waitForCardRemovalOn(CardTerminal terminal) {
+        try {
+            terminal.waitForCardAbsent(0);
+        } catch (CardException ce) {
+            System.out.println("Failed to communicate with the smartcard reader.");
+            ce.printStackTrace();
+        }
+    }
+
+    /**
      * Method to check if a card is actually a Mifare card.
      * @param atr The ATR data of the card to test.
      * @return A boolean corresponding to whether the card is a Mifare card or not.

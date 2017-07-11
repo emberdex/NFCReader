@@ -3,6 +3,9 @@ package me.monotron.NFCReader;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.smartcardio.*;
+import javax.swing.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static java.lang.System.exit;
@@ -15,20 +18,31 @@ public class Main {
 
     static Card attachedCard;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws java.io.IOException {
+
+        GUIUtils.initialise();
+
         System.out.println("Detecting card reader...");
 
         CardTerminal terminal = MifareUtils.detectAcrReader();
         if(terminal == null) {
-            System.out.println("Failed to detect a proper ATR122 reader.");
+            JOptionPane.showMessageDialog(GUIUtils.window, "Failed to detect a valid card reader.",
+                    "Fatal Error", JOptionPane.ERROR_MESSAGE);
             exit(1);
         }
 
         System.out.println("Detected card reader: " + terminal.getName());
 
+        Thread t = new Thread(new LockdownThread(new ArrayList<String>(Arrays.asList(
+                "explorer.exe", "Taskmgr.exe", "mmc.exe", "iexplore.exe", "notepad.exe"
+        ))));
+
+        t.start();
+
         while(true) {
             System.out.println("Waiting for a valid card on the reader.");
 
+            GUIUtils.updateText("Place a globe on the reader.");
             try {
                 terminal.waitForCardPresent(0);
             } catch (CardException ce) {
@@ -49,16 +63,17 @@ public class Main {
             System.out.print("Are we a valid MiFare smart card... ");
             boolean isMifareCard = MifareUtils.isValidMifareCard(atr.getBytes());
 
-            System.out.println((isMifareCard) ? "yes!" : "no!");
-
-            if(!isMifareCard) continue;
+            if(!isMifareCard) {
+                GUIUtils.updateText("Invalid card. Please remove to continue.");
+                MifareUtils.waitForCardRemovalOn(terminal);
+                continue;
+            }
 
             // Authentamacate
             if(!MifareUtils.isNFCTag(attachedCard)) {
                 boolean success = MifareUtils.authenticate(attachedCard);
                 if(!success) {
-                    System.out.println("Failed to authenticate with the card.");
-                    continue;
+                    GUIUtils.updateText("Couldn't communicate with the card.");
                 }
             }
 
@@ -67,10 +82,21 @@ public class Main {
                 CardUtils.openBrowserForId(CardUtils.getId(attachedCard));
             } else {
                 // do stuff for admin card
-                CardUtils.createAdminCard(attachedCard);
-
-                System.out.println((CardUtils.isAdminCard(attachedCard)) ? "admin!" : "not admin!");
+                if(CardUtils.isAdminCard(attachedCard)) {
+                    GUIUtils.updateText("Admin card detected. Closing.");
+                    try {
+                        Thread.sleep(3000);
+                        Runtime.getRuntime().exec("explorer.exe");
+                    } catch (InterruptedException | IOException ie) {}
+                    finally {
+                        System.exit(0xDEADCAFE);
+                    }
+                } else {
+                    GUIUtils.updateText("Invalid card.");
+                }
             }
+
+            GUIUtils.updateText("Remove the globe from the reader.");
 
             try {
                 terminal.waitForCardAbsent(0);
