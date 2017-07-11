@@ -27,7 +27,14 @@ public class MifareUtils {
     // APDU command for enabling the beep
     private static final byte[] apduEnableBeep = { commandCode, (byte) 0x00, (byte) 0x52, (byte) 0x00, (byte) 0x00 };
 
-
+    /**
+     * Method to read a sector from a smart card.
+     * Works for Mifare1k, Mifare4k (untested!)
+     * Card must already be authenticated with for this method to succeed.
+     * @param card The card to read from.
+     * @param sector The sector number to read.
+     * @return A byte array containing the response, or an empty byte array if the read operation failed.
+     */
     public static byte[] readSector(Card card, byte sector) {
         byte[] apduNew = apduReadSector;
         apduNew[3] = sector;
@@ -45,6 +52,14 @@ public class MifareUtils {
         }
     }
 
+    /**
+     * Method to read pages from an NFC tag.
+     * Works with MifareUltralight.
+     * @param card The tag to read.
+     * @param startPage The page to read from.
+     * @param n The number of pages to read.
+     * @return A byte array containing the response, or an empty byte array if the operation failed.
+     */
     public static byte[] readPages(Card card, byte startPage, byte n) {
         byte[] apduNew = apduReadSector;
 
@@ -65,8 +80,18 @@ public class MifareUtils {
         else return response.getBytes();
     }
 
+    /**
+     * Method to write data to a block on a smart card.
+     * Works with Mifare1k and Mifare4k (untested!)
+     * Card must already be authenticated with for this method to succeed.
+     * The length of the data must be 16 bytes or less, and non-zero, for this method to succeed.
+     * @param card The card to write to.
+     * @param sector The sector to write to.
+     * @param data The data to write.
+     * @return A boolean corresponding to the status of the operation (succeeded/failed).
+     */
     public static boolean writeSector(Card card, byte sector, byte[] data) {
-        if(data.length > 16) return false;
+        if(data.length > 16 || data.length == 0) return false;
 
         byte[] apduNew = new byte[apduWriteSectorPartial.length + 16];
         int i = 0;
@@ -97,6 +122,17 @@ public class MifareUtils {
         return response != null && isSuccess(response.getBytes());
     }
 
+    /**
+     * Method to write pages of data to a NFC tag.
+     * Works on MifareUltralight.
+     * DO NOT CALL THIS METHOD ON A SMART CARD. THERE BE DRAGONS AHEAD.
+     * Data is automatically padded out and split into nPages pages.
+     * @param card The tag to write data to.
+     * @param startPage The starting page.
+     * @param nPages The number of pages to write.
+     * @param data The data to write.
+     * @return A boolean corresponding to the status of the operation (succeeded/failed).
+     */
     public static boolean writePages(Card card, byte startPage, byte nPages, byte[] data) {
         // some basic sanity checking
         if(data.length / 4 > nPages) {
@@ -154,6 +190,13 @@ public class MifareUtils {
         return true;
     }
 
+    /**
+     * Method to toggle the buzzer on the ACS ACR122U reader.
+     * Works with any card on the reader.
+     * @param card The card on the reader which should have its buzzer disabled.
+     * @param state The state to which the buzzer should be set (true = on, false = off).
+     * @return A boolean corresponding to the status of the operation (succeeded/failed).
+     */
     public static boolean toggleBuzzer(Card card, boolean state) {
         ResponseAPDU response = null;
 
@@ -167,6 +210,10 @@ public class MifareUtils {
         return response != null && isSuccess(response.getBytes());
     }
 
+    /**
+     * Method to detect a valid ACS ATR122 card reader.
+     * @return The first ATR122 detected on the system, or null if none is detected.
+     */
     public static CardTerminal detectAtrReader() {
         CardTerminal correctTerminal = null;
 
@@ -176,6 +223,7 @@ public class MifareUtils {
             for (CardTerminal term : factory.terminals().list()) {
                 if(term.getName().contains("ACS ACR122")) {
                     correctTerminal = term;
+                    break;
                 }
             }
         } catch (CardException ce) {
@@ -186,6 +234,10 @@ public class MifareUtils {
         return correctTerminal;
     }
 
+    /**
+     * Method to wait for a card on a given terminal.
+     * @param terminal The terminal on which to wait.
+     */
     public static void waitForCardOn(CardTerminal terminal) {
         try {
             terminal.waitForCardPresent(0);
@@ -195,6 +247,11 @@ public class MifareUtils {
         }
     }
 
+    /**
+     * Method to get the card on a terminal.
+     * @param terminal The terminal to read the card from.
+     * @return The card on the terminal, or null if none is detected.
+     */
     public static Card getCardOn(CardTerminal terminal) {
         Card temp = null;
         try {
@@ -206,6 +263,11 @@ public class MifareUtils {
         return temp;
     }
 
+    /**
+     * Method to wait for a card on a given terminal.
+     * @param terminal The terminal on which to wait.
+     * @param timeout The time, in milliseconds, to wait until giving up.
+     */
     public static void waitForCardOn(CardTerminal terminal, long timeout) {
         try {
             terminal.waitForCardPresent(timeout);
@@ -215,6 +277,11 @@ public class MifareUtils {
         }
     }
 
+    /**
+     * Method to check if a card is actually a Mifare card.
+     * @param atr The ATR data of the card to test.
+     * @return A boolean corresponding to whether the card is a Mifare card or not.
+     */
     public static boolean isValidMifareCard(byte[] atr) {
         boolean isMifareCard = true;
 
@@ -237,11 +304,24 @@ public class MifareUtils {
         return isMifareCard;
     }
 
+    /**
+     * Method to get the type of Mifare card for a given ATR.
+     * @param atr The ATR data of the card to test.
+     * @return The ATR card type byte, or 0x00 if the card is not a valid Mifare card.
+     */
     public static byte getMifareType(byte[] atr) {
         if(isValidMifareCard(atr)) return atr[14];
         else return 0x00;
     }
 
+    /**
+     * Method to authenticate with a smart card.
+     * Works on Mifare1k, Mifare4k (untested)
+     * Will fail on NFC tags, as authentication is not required for tags.
+     * This method must be called before attempting to read/write data on the card.
+     * @param card The card to authenticate with.
+     * @return A boolean corresponding to the status of the operation (succeeded/failed).
+     */
     public static boolean authenticate(Card card) {
         ResponseAPDU response = null;
         try {
@@ -255,10 +335,20 @@ public class MifareUtils {
         return response != null && isSuccess(response.getBytes());
     }
 
+    /**
+     * Method to test the last 2 bytes of a response to check if it succeeded.
+     * @param response The response to test.
+     * @return A boolean corresponding to whether the response indicates a successful operation.
+     */
     public static boolean isSuccess(byte[] response) {
         return (response[response.length - 1] == 0x00 && response[response.length - 2] == (byte) 0x90);
     }
 
+    /**
+     * Method to test if a card is actually a NFC tag.
+     * @param card The card to test.
+     * @return A boolean corresponding to whether a card is a tag or not.
+     */
     public static boolean isNFCTag(Card card) { return (MifareUtils.getMifareType(card.getATR().getBytes()) == (byte) 0x03); }
 
     public static byte[] chopStatusBytes(byte[] response) {

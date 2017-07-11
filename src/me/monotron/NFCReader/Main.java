@@ -1,5 +1,7 @@
 package me.monotron.NFCReader;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import javax.smartcardio.*;
 import java.util.Arrays;
 
@@ -25,7 +27,7 @@ public class Main {
         System.out.println("Detected card reader: " + terminal.getName());
 
         while(true) {
-            // check if admin card
+            System.out.println("Waiting for a valid card on the reader.");
 
             try {
                 terminal.waitForCardPresent(0);
@@ -40,8 +42,6 @@ public class Main {
                 System.out.println("Failed to read the information on the card.");
                 continue;
             }
-
-            System.out.println("Reading initial card information.");
 
             System.out.println("Getting ATR...");
             ATR atr = attachedCard.getATR();
@@ -67,6 +67,9 @@ public class Main {
                 CardUtils.openBrowserForId(CardUtils.getId(attachedCard));
             } else {
                 // do stuff for admin card
+                CardUtils.createAdminCard(attachedCard);
+
+                System.out.println((CardUtils.isAdminCard(attachedCard)) ? "admin!" : "not admin!");
             }
 
             try {

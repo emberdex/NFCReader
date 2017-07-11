@@ -5,16 +5,23 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 /**
  * Created by Toby on 10/07/2017.
  */
 public class CardUtils {
 
-    private static final byte   ID_OFFSET   = (byte) 0x08;
-    private static final byte   ID_PAGES    = (byte) 0x02;
-    private static final byte   ID_LENGTH   = (byte) 0x08;
-    private static final String ROUNDME_URL = "https://roundme.com/tour/%d";
+    private static final byte   ID_OFFSET       = (byte) 0x08;
+    private static final byte   ID_PAGES        = (byte) 0x02;
+    private static final byte   ID_LENGTH       = (byte) 0x08;
+    private static final String ROUNDME_URL     = "https://roundme.com/tour/%d";
+    private static final byte[] ADMIN_DATA      = { (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
+    private static final byte   ADMIN_OFFSET    = (byte) 0x02;
+    private static final byte   ADMIN_LENGTH    = (byte) 0x04;
 
     /**
      * Method to get the ID of a Roundme image from a NFC tag.
@@ -65,6 +72,29 @@ public class CardUtils {
         }
 
         return MifareUtils.writePages(card, ID_OFFSET, ID_PAGES, Integer.toString(id).getBytes());
+    }
+
+    /**
+     * Method to check if a card is an admin card, for use in breaking out of the sandbox.
+     * @param card The card to check.
+     * @return A boolean corresponding to whether the card is an admin card.
+     */
+    public static boolean isAdminCard(Card card) {
+        if(MifareUtils.isNFCTag(card)) return false;
+
+        byte[] response = MifareUtils.readSector(card, ADMIN_OFFSET);
+        return (Arrays.equals(MifareUtils.chopStatusBytes(response), ADMIN_DATA));
+    }
+
+    /**
+     * Method to create an admin card, for use in breaking out of the sandbox.
+     * @param card The card to promote to an admin.
+     * @return A boolean corresponding to whether the operation succeeded or not.
+     */
+    public static boolean createAdminCard(Card card) {
+        if(MifareUtils.isNFCTag(card)) return false;
+
+        return MifareUtils.writeSector(card, ADMIN_OFFSET, ADMIN_DATA);
     }
 
     /**
