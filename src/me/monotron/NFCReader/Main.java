@@ -26,7 +26,8 @@ public class Main {
 
         CardTerminal terminal = MifareUtils.detectAcrReader();
         if(terminal == null) {
-            JOptionPane.showMessageDialog(GUIUtils.window, "Failed to detect a valid card reader.",
+            JOptionPane.showMessageDialog(GUIUtils.window, "Failed to detect a valid card reader.\n" +
+                            "Please connect an ACS ACR122U reader to this computer, and relaunch the application.",
                     "Fatal Error", JOptionPane.ERROR_MESSAGE);
             exit(1);
         }
@@ -37,7 +38,7 @@ public class Main {
                 "explorer.exe", "Taskmgr.exe", "mmc.exe", "iexplore.exe", "notepad.exe"
         ))));
 
-        t.start();
+        //t.start();
 
         while(true) {
             System.out.println("Waiting for a valid card on the reader.");
@@ -47,8 +48,13 @@ public class Main {
                 terminal.waitForCardPresent(0);
             } catch (CardException ce) {
                 System.out.println(String.format("CardException: %s", ce.getMessage()));
-                ce.printStackTrace();
-                break;
+
+                if(ce.getCause().getMessage().equals("SCARD_E_NO_READERS_AVAILABLE")) {
+                    JOptionPane.showMessageDialog(GUIUtils.window, "Communication with the card reader was lost while waiting for a card.",
+                            "Fatal Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                exit(1);
             }
 
             attachedCard = MifareUtils.getCardOn(terminal);
@@ -60,7 +66,6 @@ public class Main {
             System.out.println("Getting ATR...");
             ATR atr = attachedCard.getATR();
 
-            System.out.print("Are we a valid MiFare smart card... ");
             boolean isMifareCard = MifareUtils.isValidMifareCard(atr.getBytes());
 
             if(!isMifareCard) {
@@ -102,6 +107,12 @@ public class Main {
                 terminal.waitForCardAbsent(0);
             } catch (CardException ce) {
                 System.out.println(String.format("CardException: %s", ce.getMessage()));
+
+                if(ce.getCause().getMessage().equals("SCARD_E_NO_READERS_AVAILABLE")) {
+                    JOptionPane.showMessageDialog(GUIUtils.window, "Communication with the card reader was lost while waiting for a card.",
+                            "Fatal Error", JOptionPane.ERROR_MESSAGE);
+                }
+
                 ce.printStackTrace();
             }
         }
