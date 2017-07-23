@@ -13,6 +13,9 @@ public class LockdownThread implements Runnable {
         this.list = processes;
     }
 
+    /**
+     * A thread to continually kill a specified list of processes.
+     */
     public void run() {
         while(true) {
             for (String s : list) {

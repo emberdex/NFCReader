@@ -22,7 +22,7 @@ public class Main {
 
         GUIUtils.initialise();
 
-        System.out.println("Detecting card reader...");
+        LogUtils.log("Detecting card reader...", LogLevels.INFO);
 
         CardTerminal terminal = MifareUtils.detectAcrReader();
         if(terminal == null) {
@@ -32,7 +32,7 @@ public class Main {
             exit(1);
         }
 
-        System.out.println("Detected card reader: " + terminal.getName());
+        LogUtils.log("Detected card reader: " + terminal.getName(), LogLevels.INFO);
 
         Thread t = new Thread(new LockdownThread(new ArrayList<String>(Arrays.asList(
                 "explorer.exe", "Taskmgr.exe", "mmc.exe", "iexplore.exe", "notepad.exe"
@@ -41,7 +41,7 @@ public class Main {
         //t.start();
 
         while(true) {
-            System.out.println("Waiting for a valid card on the reader.");
+            LogUtils.log("Waiting for a globe.", LogLevels.INFO);
 
             GUIUtils.updateText("Place a globe on the reader.");
             try {
@@ -59,11 +59,11 @@ public class Main {
 
             attachedCard = MifareUtils.getCardOn(terminal);
             if(attachedCard == null) {
-                System.out.println("Failed to read the information on the card.");
+                LogUtils.log("Failed to read the data on the card.", LogLevels.ERROR);
                 continue;
             }
 
-            System.out.println("Getting ATR...");
+            LogUtils.log("Reading ATR...", LogLevels.INFO);
             ATR atr = attachedCard.getATR();
 
             boolean isMifareCard = MifareUtils.isValidMifareCard(atr.getBytes());
@@ -106,7 +106,7 @@ public class Main {
             try {
                 terminal.waitForCardAbsent(0);
             } catch (CardException ce) {
-                System.out.println(String.format("CardException: %s", ce.getMessage()));
+                LogUtils.log("Failed to communicate with the card reader.", LogLevels.ERROR);
 
                 if(ce.getCause().getMessage().equals("SCARD_E_NO_READERS_AVAILABLE")) {
                     JOptionPane.showMessageDialog(GUIUtils.window, "Communication with the card reader was lost while waiting for a card.",
