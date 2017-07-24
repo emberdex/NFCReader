@@ -15,7 +15,7 @@ class CardUtils {
     private static final byte   ID_OFFSET       = (byte) 0x08;
     private static final byte   ID_PAGES        = (byte) 0x02;
     private static final byte   ID_LENGTH       = (byte) 0x08;
-    private static final String ROUNDME_URL     = "https://roundme.com/tour/%d";
+    public static final String ROUNDME_URL     = "https://roundme.com/tour/%d";
     private static final byte[] ADMIN_DATA      = { (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -115,15 +115,6 @@ class CardUtils {
      * @param id The ID of the roundme image to display.
      */
     static void openBrowserForId(int id) {
-        if(Desktop.isDesktopSupported()) {
-            try {
-                Desktop.getDesktop().browse(new URI(String.format(ROUNDME_URL, id)));
-            } catch (URISyntaxException | IOException e) {
-                System.out.println(String.format("%s: %s", e.getClass().toString(), e.getMessage()));
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Failed to open the browser window.");
-        }
+        BrowserUtils.launchBrowser(id, true);
     }
 }

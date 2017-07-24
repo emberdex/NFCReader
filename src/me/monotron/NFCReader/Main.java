@@ -2,6 +2,8 @@ package me.monotron.NFCReader;
 
 import javax.smartcardio.*;
 import javax.swing.*;
+import java.io.IOException;
+
 import static java.lang.System.exit;
 
 /**
@@ -11,9 +13,9 @@ public class Main {
 
     static Card attachedCard;
     public static CardTerminal terminal;
+    static AdminUtils ut = new AdminUtils();
 
     public static void main(String[] args) throws java.io.IOException {
-        AdminUtils ut;
 
         GUIUtils.initialise();
 
@@ -27,7 +29,6 @@ public class Main {
             exit(1);
         }
 
-        ut = new AdminUtils();
         ut.initialise();
 
         LogUtils.log("Detected card reader: " + terminal.getName(), LogLevels.INFO);
@@ -37,7 +38,14 @@ public class Main {
 
             new AdminUtils().initialise();
 
-            GUIUtils.updateText("Place a globe on the reader.");
+            System.out.println(System.getProperty("user.dir"));
+
+            try {
+                GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\place.png");
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
             try {
                 terminal.waitForCardPresent(0);
             } catch (CardException ce) {
@@ -63,7 +71,11 @@ public class Main {
             boolean isMifareCard = MifareUtils.isValidMifareCard(atr.getBytes());
 
             if(!isMifareCard) {
-                GUIUtils.updateText("Invalid card. Please remove to continue.");
+                try {
+                    GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\error.png");
+                } catch (IOException ioe) {
+                    JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
                 MifareUtils.waitForCardRemovalOn(terminal);
                 continue;
             }
@@ -72,7 +84,11 @@ public class Main {
             if(!MifareUtils.isNFCTag(attachedCard)) {
                 boolean success = MifareUtils.authenticate(attachedCard);
                 if(!success) {
-                    GUIUtils.updateText("Couldn't communicate with the card.");
+                    try {
+                        GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\error.png");
+                    } catch (IOException ioe) {
+                        JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
 
@@ -82,7 +98,11 @@ public class Main {
             } else {
                 // do stuff for admin card
                 if(CardUtils.isAdminCard(attachedCard)) {
-                    GUIUtils.updateText("ADMIN MODE");
+                    try {
+                        GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\sandvich.png");
+                    } catch (IOException ioe) {
+                        JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                     ut.setVisibility(true);
                     try {
                         terminal.waitForCardAbsent(0);
@@ -91,11 +111,19 @@ public class Main {
                         ut.setVisibility(false);
                     }
                 } else {
-                    GUIUtils.updateText("Invalid card.");
+                    try {
+                        GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\error.png");
+                    } catch (IOException ioe) {
+                        JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
 
-            GUIUtils.updateText("Remove the globe from the reader.");
+            try {
+                GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\remove.png");
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(GUIUtils.window, "Failed to update the GUI image.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
             try {
                 terminal.waitForCardAbsent(0);

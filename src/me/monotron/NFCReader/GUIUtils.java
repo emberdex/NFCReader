@@ -1,7 +1,11 @@
 package me.monotron.NFCReader;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -48,5 +52,15 @@ class GUIUtils {
     static void updateText(String str) {
         text.setText(str);
         window.repaint();
+    }
+
+    static void updateImage(String path) throws IOException {
+        BufferedImage img = ImageIO.read(new File(path));
+        JLabel pic = new JLabel(new ImageIcon(img));
+        pic.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        window.getContentPane().removeAll();
+        window.add(pic);
+        window.repaint();
+        updateText("");
     }
 }
