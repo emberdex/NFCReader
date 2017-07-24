@@ -223,6 +223,10 @@ public class AdminUtils {
         window.setSize(new Dimension(200, 300));
     }
 
+    /**
+     * Method to set the visibility of the admin window.
+     * @param visibility Boolean corresponding to whether to show the window or not.
+     */
     public void setVisibility(boolean visibility) {
         window.setVisible(visibility);
     }

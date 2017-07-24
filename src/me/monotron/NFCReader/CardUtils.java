@@ -12,20 +12,26 @@ import java.util.Arrays;
  */
 class CardUtils {
 
+    // The offset on the tag at which to store the ID.
     private static final byte   ID_OFFSET       = (byte) 0x08;
+    // The size of the ID, in 4-byte pages.
     private static final byte   ID_PAGES        = (byte) 0x02;
+    // The length of the ID, rounded to the nearest page.
     private static final byte   ID_LENGTH       = (byte) 0x08;
+    // The roundme URL.
     public static final String ROUNDME_URL     = "https://roundme.com/tour/%d";
+    // The admin magic page data.
     private static final byte[] ADMIN_DATA      = { (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
+    // just a blank page
     private static final byte[] KILL_ADMIN_DATA = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // not cafe babe
+    // The offset at which to store admin data.
     private static final byte   ADMIN_OFFSET    = (byte) 0x02;
-    private static final byte   ADMIN_LENGTH    = (byte) 0x04;
 
     /**
      * Method to get the ID of a Roundme image from a NFC tag.
@@ -34,23 +40,28 @@ class CardUtils {
      */
     static int getId(Card card) {
 
+        // If the card is not a tag
         if(!MifareUtils.isNFCTag(card)) {
             System.err.println("This is not a globe. Not going to read the ID.");
             return 0;
         }
 
+        // Read the response from the card.
         byte[] response = MifareUtils.readPages(card, ID_OFFSET, ID_LENGTH);
         if(!MifareUtils.isSuccess(response)) {
             System.err.println("Failed to read the ID from the tag.");
             return 0;
         }
 
+        // Remove the status bytes from the card.
         response = MifareUtils.chopStatusBytes(response);
 
+        // Convert the response to a string, chop the last 2 extraneous bytes.
         String id = new String(MifareUtils.chopStatusBytes(response));
 
         int retVal = 0;
 
+        // Parse the read ID to an integer.
         try {
             retVal = Integer.parseInt(id);
         } catch (NumberFormatException nfe) {
@@ -71,10 +82,11 @@ class CardUtils {
     static boolean setID(Card card, int id) {
 
         if(!MifareUtils.isNFCTag(card)) {
-            System.err.println("This is not a globe. Not going to read the ID.");
+            System.err.println("This is not a globe. Not going to write the ID.");
             return false;
         }
 
+        // Write the integer to the card.
         return MifareUtils.writePages(card, ID_OFFSET, ID_PAGES, Integer.toString(id).getBytes());
     }
 
@@ -86,6 +98,7 @@ class CardUtils {
     static boolean isAdminCard(Card card) {
         if(MifareUtils.isNFCTag(card)) return false;
 
+        // Read the data from the card and return the status.
         byte[] response = MifareUtils.readSector(card, ADMIN_OFFSET);
         return (Arrays.equals(MifareUtils.chopStatusBytes(response), ADMIN_DATA));
     }
@@ -97,7 +110,6 @@ class CardUtils {
      */
     static boolean createAdminCard(Card card) {
         return !MifareUtils.isNFCTag(card) && MifareUtils.writeSector(card, ADMIN_OFFSET, ADMIN_DATA);
-
     }
 
     /**
@@ -107,7 +119,6 @@ class CardUtils {
      */
     static boolean killAdminCard(Card card) {
         return !MifareUtils.isNFCTag(card) && MifareUtils.writeSector(card, ADMIN_OFFSET, KILL_ADMIN_DATA);
-
     }
 
     /**
