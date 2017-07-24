@@ -7,16 +7,16 @@ import java.util.ArrayList;
 /**
  * Created by Toby on 11/07/2017.
  */
-public class GUIUtils {
+class GUIUtils {
 
     static JFrame window;
-    static JPanel content;
-    static JLabel text;
+    private static JPanel content;
+    private static JLabel text;
 
     /**
      * Method to initialise the GUI for the reader application.
      */
-    public static void initialise() {
+    static void initialise() {
         window = new JFrame("Tavis Booth MA - NFC Reader");
         content = new JPanel();
 
@@ -45,7 +45,7 @@ public class GUIUtils {
      * Method to update the text on the screen and repaint the window.
      * @param str The text to display in the window.
      */
-    public static void updateText(String str) {
+    static void updateText(String str) {
         text.setText(str);
         window.repaint();
     }

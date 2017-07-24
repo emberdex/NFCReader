@@ -28,11 +28,11 @@ public class LogUtils {
         }
     }
 
-    public static void log(String msg) {
+    static void log(String msg) {
         System.out.println(String.format("[%s] %s", new SimpleDateFormat("d/M/y HH:mm:ss").format(new Date()), msg));
     }
 
-    public static void log(String msg, LogLevels logLevel) {
+    static void log(String msg, LogLevels logLevel) {
         System.out.println(String.format("[%s] <%s> %s", new SimpleDateFormat("d/M/y HH:mm:ss").format(new Date()),
                 getLogLevel(logLevel), msg));
     }

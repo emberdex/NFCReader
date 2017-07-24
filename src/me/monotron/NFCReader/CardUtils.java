@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * Created by Toby on 10/07/2017.
  */
-public class CardUtils {
+class CardUtils {
 
     private static final byte   ID_OFFSET       = (byte) 0x08;
     private static final byte   ID_PAGES        = (byte) 0x02;
@@ -32,7 +32,7 @@ public class CardUtils {
      * @param card The card from which the ID will be read.
      * @return The ID of the roundme image stored on the card.
      */
-    public static int getId(Card card) {
+    static int getId(Card card) {
 
         if(!MifareUtils.isNFCTag(card)) {
             System.err.println("This is not a globe. Not going to read the ID.");
@@ -68,7 +68,7 @@ public class CardUtils {
      * @param id The ID to write to the card.
      * @return true if the write succeeded, otherwise false
      */
-    public static boolean setID(Card card, int id) {
+    static boolean setID(Card card, int id) {
 
         if(!MifareUtils.isNFCTag(card)) {
             System.err.println("This is not a globe. Not going to read the ID.");
@@ -83,7 +83,7 @@ public class CardUtils {
      * @param card The card to check.
      * @return A boolean corresponding to whether the card is an admin card.
      */
-    public static boolean isAdminCard(Card card) {
+    static boolean isAdminCard(Card card) {
         if(MifareUtils.isNFCTag(card)) return false;
 
         byte[] response = MifareUtils.readSector(card, ADMIN_OFFSET);
@@ -95,10 +95,9 @@ public class CardUtils {
      * @param card The card to promote to an admin.
      * @return A boolean corresponding to whether the operation succeeded or not.
      */
-    public static boolean createAdminCard(Card card) {
-        if(MifareUtils.isNFCTag(card)) return false;
+    static boolean createAdminCard(Card card) {
+        return !MifareUtils.isNFCTag(card) && MifareUtils.writeSector(card, ADMIN_OFFSET, ADMIN_DATA);
 
-        return MifareUtils.writeSector(card, ADMIN_OFFSET, ADMIN_DATA);
     }
 
     /**
@@ -106,17 +105,16 @@ public class CardUtils {
      * @param card The card to invalidate.
      * @return A boolean corresponding to whether the operation succeeded or not.
      */
-    public static boolean killAdminCard(Card card) {
-        if(MifareUtils.isNFCTag(card)) return false;
+    static boolean killAdminCard(Card card) {
+        return !MifareUtils.isNFCTag(card) && MifareUtils.writeSector(card, ADMIN_OFFSET, KILL_ADMIN_DATA);
 
-        return MifareUtils.writeSector(card, ADMIN_OFFSET, KILL_ADMIN_DATA);
     }
 
     /**
      * Method to open the browser window for an ID.
      * @param id The ID of the roundme image to display.
      */
-    public static void openBrowserForId(int id) {
+    static void openBrowserForId(int id) {
         if(Desktop.isDesktopSupported()) {
             try {
                 Desktop.getDesktop().browse(new URI(String.format(ROUNDME_URL, id)));

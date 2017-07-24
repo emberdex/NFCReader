@@ -1,15 +1,8 @@
 package me.monotron.NFCReader;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import javax.smartcardio.*;
 import javax.swing.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import static java.lang.System.exit;
-import static me.monotron.NFCReader.MifareUtils.isSuccess;
 
 /**
  * Created by Toby on 05/07/2017.
@@ -18,9 +11,9 @@ public class Main {
 
     static Card attachedCard;
     public static CardTerminal terminal;
-    private static AdminUtils ut;
 
     public static void main(String[] args) throws java.io.IOException {
+        AdminUtils ut;
 
         GUIUtils.initialise();
 

@@ -1,8 +1,5 @@
 package me.monotron.NFCReader;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
-
 import javax.smartcardio.*;
 
 /**
@@ -35,7 +32,7 @@ public class MifareUtils {
      * @param sector The sector number to read.
      * @return A byte array containing the response, or an empty byte array if the read operation failed.
      */
-    public static byte[] readSector(Card card, byte sector) {
+     static byte[] readSector(Card card, byte sector) {
         byte[] apduNew = apduReadSector;
         apduNew[3] = sector;
         ResponseAPDU response = null;
@@ -60,7 +57,7 @@ public class MifareUtils {
      * @param n The number of pages to read.
      * @return A byte array containing the response, or an empty byte array if the operation failed.
      */
-    public static byte[] readPages(Card card, byte startPage, byte n) {
+     static byte[] readPages(Card card, byte startPage, byte n) {
         byte[] apduNew = apduReadSector;
 
         // 0x03 in APDU is the start address, 0x04 is the number of bytes to read
@@ -90,7 +87,7 @@ public class MifareUtils {
      * @param data The data to write.
      * @return A boolean corresponding to the status of the operation (succeeded/failed).
      */
-    public static boolean writeSector(Card card, byte sector, byte[] data) {
+     static boolean writeSector(Card card, byte sector, byte[] data) {
         if(data.length > 16 || data.length == 0) return false;
 
         byte[] apduNew = new byte[apduWriteSectorPartial.length + 16];
@@ -133,7 +130,7 @@ public class MifareUtils {
      * @param data The data to write.
      * @return A boolean corresponding to the status of the operation (succeeded/failed).
      */
-    public static boolean writePages(Card card, byte startPage, byte nPages, byte[] data) {
+    static boolean writePages(Card card, byte startPage, byte nPages, byte[] data) {
         // some basic sanity checking
         if(data.length / 4 > nPages) {
             System.err.println("Data for writePages() call must be able to fit within (nPages * 4) bytes.");
@@ -197,7 +194,7 @@ public class MifareUtils {
      * @param state The state to which the buzzer should be set (true = on, false = off).
      * @return A boolean corresponding to the status of the operation (succeeded/failed).
      */
-    public static boolean toggleBuzzer(Card card, boolean state) {
+    static boolean toggleBuzzer(Card card, boolean state) {
         ResponseAPDU response = null;
 
         try {
@@ -214,7 +211,7 @@ public class MifareUtils {
      * Method to detect a valid ACS ACR122 card reader.
      * @return The first ACR122 detected on the system, or null if none is detected.
      */
-    public static CardTerminal detectAcrReader() {
+    static CardTerminal detectAcrReader() {
         CardTerminal correctTerminal = null;
 
         // Get a list of terminals.
@@ -238,7 +235,7 @@ public class MifareUtils {
      * Method to wait for a card on a given terminal.
      * @param terminal The terminal on which to wait.
      */
-    public static void waitForCardOn(CardTerminal terminal) {
+    static void waitForCardOn(CardTerminal terminal) {
         try {
             terminal.waitForCardPresent(0);
         } catch (CardException ce) {
@@ -252,7 +249,7 @@ public class MifareUtils {
      * @param terminal The terminal to read the card from.
      * @return The card on the terminal, or null if none is detected.
      */
-    public static Card getCardOn(CardTerminal terminal) {
+    static Card getCardOn(CardTerminal terminal) {
         Card temp = null;
         try {
             temp = terminal.connect("*");
@@ -268,7 +265,7 @@ public class MifareUtils {
      * @param terminal The terminal on which to wait.
      * @param timeout The time, in milliseconds, to wait until giving up.
      */
-    public static void waitForCardOn(CardTerminal terminal, long timeout) {
+    static void waitForCardOn(CardTerminal terminal, long timeout) {
         try {
             terminal.waitForCardPresent(timeout);
         } catch (CardException ce) {
@@ -281,7 +278,7 @@ public class MifareUtils {
      * Method to wait for a card to be removed from a given terminal.
      * @param terminal The card to remove.
      */
-    public static void waitForCardRemovalOn(CardTerminal terminal) {
+    static void waitForCardRemovalOn(CardTerminal terminal) {
         try {
             terminal.waitForCardAbsent(0);
         } catch (CardException ce) {
@@ -295,7 +292,7 @@ public class MifareUtils {
      * @param atr The ATR data of the card to test.
      * @return A boolean corresponding to whether the card is a Mifare card or not.
      */
-    public static boolean isValidMifareCard(byte[] atr) {
+    static boolean isValidMifareCard(byte[] atr) {
         boolean isMifareCard = true;
 
         try {
@@ -322,7 +319,7 @@ public class MifareUtils {
      * @param atr The ATR data of the card to test.
      * @return The ATR card type byte, or 0x00 if the card is not a valid Mifare card.
      */
-    public static byte getMifareType(byte[] atr) {
+    static byte getMifareType(byte[] atr) {
         if(isValidMifareCard(atr)) return atr[14];
         else return 0x00;
     }
@@ -335,7 +332,7 @@ public class MifareUtils {
      * @param card The card to authenticate with.
      * @return A boolean corresponding to the status of the operation (succeeded/failed).
      */
-    public static boolean authenticate(Card card) {
+    static boolean authenticate(Card card) {
         ResponseAPDU response = null;
         try {
             response = card.getBasicChannel().transmit(new CommandAPDU(apduGetKey));
@@ -353,7 +350,7 @@ public class MifareUtils {
      * @param response The response to test.
      * @return A boolean corresponding to whether the response indicates a successful operation.
      */
-    public static boolean isSuccess(byte[] response) {
+    static boolean isSuccess(byte[] response) {
         return (response[response.length - 1] == 0x00 && response[response.length - 2] == (byte) 0x90);
     }
 
@@ -362,9 +359,9 @@ public class MifareUtils {
      * @param card The card to test.
      * @return A boolean corresponding to whether a card is a tag or not.
      */
-    public static boolean isNFCTag(Card card) { return (MifareUtils.getMifareType(card.getATR().getBytes()) == (byte) 0x03); }
+    static boolean isNFCTag(Card card) { return (MifareUtils.getMifareType(card.getATR().getBytes()) == (byte) 0x03); }
 
-    public static byte[] chopStatusBytes(byte[] response) {
+    static byte[] chopStatusBytes(byte[] response) {
         byte[] retval = new byte[response.length - 2];
 
         for (int i = 0; i < retval.length; i++) {
