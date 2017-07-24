@@ -20,6 +20,10 @@ public class CardUtils {
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
+    private static final byte[] KILL_ADMIN_DATA = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
     private static final byte   ADMIN_OFFSET    = (byte) 0x02;
     private static final byte   ADMIN_LENGTH    = (byte) 0x04;
 
@@ -95,6 +99,17 @@ public class CardUtils {
         if(MifareUtils.isNFCTag(card)) return false;
 
         return MifareUtils.writeSector(card, ADMIN_OFFSET, ADMIN_DATA);
+    }
+
+    /**
+     * Method to invalidate an existing admin card.
+     * @param card The card to invalidate.
+     * @return A boolean corresponding to whether the operation succeeded or not.
+     */
+    public static boolean killAdminCard(Card card) {
+        if(MifareUtils.isNFCTag(card)) return false;
+
+        return MifareUtils.writeSector(card, ADMIN_OFFSET, KILL_ADMIN_DATA);
     }
 
     /**

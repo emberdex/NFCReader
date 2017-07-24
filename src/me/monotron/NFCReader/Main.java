@@ -17,6 +17,8 @@ import static me.monotron.NFCReader.MifareUtils.isSuccess;
 public class Main {
 
     static Card attachedCard;
+    public static CardTerminal terminal;
+    private static AdminUtils ut;
 
     public static void main(String[] args) throws java.io.IOException {
 
@@ -24,13 +26,16 @@ public class Main {
 
         LogUtils.log("Detecting card reader...", LogLevels.INFO);
 
-        CardTerminal terminal = MifareUtils.detectAcrReader();
+        terminal = MifareUtils.detectAcrReader();
         if(terminal == null) {
             JOptionPane.showMessageDialog(GUIUtils.window, "Failed to detect a valid card reader.\n" +
                             "Please connect an ACS ACR122U reader to this computer, and relaunch the application.",
                     "Fatal Error", JOptionPane.ERROR_MESSAGE);
             exit(1);
         }
+
+        ut = new AdminUtils();
+        ut.initialise();
 
         LogUtils.log("Detected card reader: " + terminal.getName(), LogLevels.INFO);
 
@@ -42,6 +47,8 @@ public class Main {
 
         while(true) {
             LogUtils.log("Waiting for a globe.", LogLevels.INFO);
+
+            new AdminUtils().initialise();
 
             GUIUtils.updateText("Place a globe on the reader.");
             try {
@@ -88,13 +95,13 @@ public class Main {
             } else {
                 // do stuff for admin card
                 if(CardUtils.isAdminCard(attachedCard)) {
-                    GUIUtils.updateText("Admin card detected. Closing.");
+                    GUIUtils.updateText("ADMIN MODE");
+                    ut.setVisibility(true);
                     try {
-                        Thread.sleep(3000);
-                        Runtime.getRuntime().exec("explorer.exe");
-                    } catch (InterruptedException | IOException ie) {}
+                        terminal.waitForCardAbsent(0);
+                    } catch (CardException ce) {}
                     finally {
-                        System.exit(0xDEADCAFE);
+                        ut.setVisibility(false);
                     }
                 } else {
                     GUIUtils.updateText("Invalid card.");
