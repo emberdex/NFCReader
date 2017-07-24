@@ -1,6 +1,8 @@
 # NFCReader
 A part of Tavis Booth's MA project @ University of Wolverhampton. Written in Java, requires no external libraries.
+
 The code is provided merely to act as a resource for other Java smart card application developers. (in fact, the entire MifareUtils class could be ripped for use in your own project)
+
 You may use the code verbatim or otherwise for any commercial or personal application, as long as credit is given in some way, be it in your source code or in the About section of your project.
 
 ### Hardware requirements:
