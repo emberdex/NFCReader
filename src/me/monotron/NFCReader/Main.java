@@ -39,12 +39,6 @@ public class Main {
 
         LogUtils.log("Detected card reader: " + terminal.getName(), LogLevels.INFO);
 
-        Thread t = new Thread(new LockdownThread(new ArrayList<String>(Arrays.asList(
-                "explorer.exe", "Taskmgr.exe", "mmc.exe", "iexplore.exe", "notepad.exe"
-        ))));
-
-        //t.start();
-
         while(true) {
             LogUtils.log("Waiting for a globe.", LogLevels.INFO);
 
