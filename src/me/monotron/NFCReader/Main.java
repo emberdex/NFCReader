@@ -98,9 +98,6 @@ public class Main {
                     try {
                         terminal.waitForCardAbsent(0);
                     } catch (CardException ce) {}
-                    finally {
-                        ut.setVisibility(false);
-                    }
 
                 } else {
                     // otherwise, assume something went wrong, display error
