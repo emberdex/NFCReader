@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class AdminUtils {
 
-    public JFrame window;
+    public JDialog window;
     private JButton createAdminCardButton;
     private JButton invalidateAdminCardButton;
     private JButton writeIDToTagButton;
@@ -27,10 +27,11 @@ public class AdminUtils {
      * Code to initialise the GUI for the admin side.
      */
     public void initialise() {
-        window = new JFrame("Administrator Access");
+        window = new JDialog();
 
         window.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         window.setContentPane(adminFrame);
+        window.setModal(true);
 
         createAdminCardButton.addActionListener(e -> {
             statusLabel.setText("Waiting for card.");
@@ -155,9 +156,9 @@ public class AdminUtils {
 
             int id;
             try {
-                id = (int) JOptionPane.showInputDialog(adminFrame, "Enter an ID:", "Enter ID",
-                        JOptionPane.QUESTION_MESSAGE, null, null, null);
-            } catch (ClassCastException cce) {
+                id = Integer.parseInt((String) JOptionPane.showInputDialog(adminFrame, "Enter an ID:", "Enter ID",
+                        JOptionPane.QUESTION_MESSAGE, null, null, null));
+            } catch (NumberFormatException nfe) {
                 statusLabel.setText("Please enter an integer.");
                 window.repaint();
                 return;
@@ -202,7 +203,7 @@ public class AdminUtils {
                 return;
             }
 
-            CardUtils.setID(c, 0);
+            CardUtils.invalidateTag(c);
 
         });
 

@@ -17,6 +17,7 @@ public class BrowserUtils {
      */
     public static void launchBrowser(int id, boolean kiosk) {
         try {
+            GraceUtils.graceChrome();
             // Launch Chrome from the program files
             p = Runtime.getRuntime().exec(String.format("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe %s %s",
                     (kiosk) ? "--kiosk" : "", String.format(CardUtils.ROUNDME_URL, id)));
@@ -31,6 +32,7 @@ public class BrowserUtils {
      * Method to kill the browser. Called when the card is removed.
      */
     public static void killBrowser() {
-        p.destroyForcibly();
+        p.destroy();
+        GraceUtils.graceChrome();
     }
 }

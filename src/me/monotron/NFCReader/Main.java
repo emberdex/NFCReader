@@ -86,18 +86,22 @@ public class Main {
             }
 
             // Open browser window for attached card.
-            if(MifareUtils.isNFCTag(attachedCard)) {
-                CardUtils.openBrowserForId(CardUtils.getId(attachedCard));
+            if(!CardUtils.isAdminCard(attachedCard) && MifareUtils.isNFCTag(attachedCard)) {
+                int returnedID = CardUtils.getId(attachedCard);
+                if(returnedID != 0) {
+                    BrowserUtils.launchBrowser(returnedID, true);
+
+                    try {
+                        terminal.waitForCardAbsent(0);
+                    } catch (CardException ce) {}
+
+                    BrowserUtils.killBrowser();
+                }
             } else {
                 // do stuff for admin card
                 if(CardUtils.isAdminCard(attachedCard)) {
                     GUIUtils.updateImage(System.getProperty("user.dir") + "\\images\\sandvich.png");
-                    ut.setVisibility(true);
-
-                    // Close the window when the card is removed.
-                    try {
-                        terminal.waitForCardAbsent(0);
-                    } catch (CardException ce) {}
+                    ut.window.setVisible(true);
 
                 } else {
                     // otherwise, assume something went wrong, display error

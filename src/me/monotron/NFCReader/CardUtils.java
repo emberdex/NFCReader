@@ -25,6 +25,9 @@ class CardUtils {
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }; // cafe babe
+
+    private static final byte[] TRUNC_ADMIN_DATA= { (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE,
+                                                    (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
     // just a blank page
     private static final byte[] KILL_ADMIN_DATA = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                                                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -91,6 +94,20 @@ class CardUtils {
     }
 
     /**
+     * Invalidate a tag by writing zeroes to the ID region.
+     * @param card The tag to invalidate.
+     * @return A boolean corresponding to the status of the operation.
+     */
+    static boolean invalidateTag(Card card) {
+        if(!MifareUtils.isNFCTag(card)) {
+            System.err.println("This is not a globe. Not going to write the ID.");
+            return false;
+        }
+
+        return MifareUtils.writePages(card, ID_OFFSET, (byte) 0x2, new byte[]{0, 0, 0, 0, 0, 0, 0, 0});
+    }
+
+    /**
      * Method to check if a card is an admin card, for use in breaking out of the sandbox.
      * @param card The card to check.
      * @return A boolean corresponding to whether the card is an admin card.
@@ -100,7 +117,8 @@ class CardUtils {
 
         // Read the data from the card and return the status.
         byte[] response = MifareUtils.readSector(card, ADMIN_OFFSET);
-        return (Arrays.equals(MifareUtils.chopStatusBytes(response), ADMIN_DATA));
+        return (Arrays.equals(MifareUtils.chopStatusBytes(response), ADMIN_DATA) ||
+                Arrays.equals(MifareUtils.chopStatusBytes(response), TRUNC_ADMIN_DATA));
     }
 
     /**
