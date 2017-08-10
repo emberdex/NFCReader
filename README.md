@@ -15,5 +15,8 @@ If you want to compile the entire application, it is uploaded as an IntelliJ IDE
 * Java 8 or above.
 * The ACS drivers for the reader must be installed - the stock Windows driver does not work.
 
+### Things to note
+* The application uses 4 images, displayed during various states of the program. Please ensure the images directory is placed next to the artifact to allow full functionality. You can customise these images by replacing files in the image directory with your own png files of appropriate resolution to match the dimensions of the target machine's display.
+
 ### Bug reports:
 If something doesn't work as you expect, please open an issue. I will work to resolve the problem.
