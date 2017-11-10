@@ -19,7 +19,7 @@ If you want to compile the entire application, it is uploaded as an IntelliJ IDE
 * The application uses 4 images, displayed during various states of the program. Please ensure the images directory is placed next to the artifact to allow full functionality. You can customise these images by replacing files in the image directory with your own png files of appropriate resolution to match the dimensions of the target machine's display.
 
 ### Known issues
-* Placing a card and removing it quickly enough can cause a softlock.
+* ~~Placing a card and removing it quickly enough can cause a softlock.~~ [resolved in commit 6817f06c2e781411e31fd76dff51a776d1f61d04](https://github.com/monotron/NFCReader/commit/6817f06c2e781411e31fd76dff51a776d1f61d04)
 
 ### Bug reports:
 If something doesn't work as you expect, please open an issue. I will work to resolve the problem.
