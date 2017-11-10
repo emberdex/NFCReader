@@ -2,7 +2,6 @@ package me.monotron.NFCReader;
 
 import javax.smartcardio.*;
 import javax.swing.*;
-import java.io.IOException;
 
 import static java.lang.System.exit;
 

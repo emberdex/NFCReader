@@ -71,6 +71,7 @@ class CardUtils {
             System.out.println(String.format("NumberFormatException - invalid data on the card: %s",
                     nfe.getMessage()));
             nfe.printStackTrace();
+            return 9000;
         }
 
         return retVal;

@@ -351,7 +351,8 @@ public class MifareUtils {
      * @return A boolean corresponding to whether the response indicates a successful operation.
      */
     static boolean isSuccess(byte[] response) {
-        return (response[response.length - 1] == 0x00 && response[response.length - 2] == (byte) 0x90);
+        if(response.length > 2) return (response[response.length - 1] == 0x00 && response[response.length - 2] == (byte) 0x90);
+        else return false;
     }
 
     /**
